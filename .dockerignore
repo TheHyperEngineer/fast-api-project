@@ -1,0 +1,30 @@
+# Exclude venv and python build artifacts from docker context
+__pycache__/
+*.py[cod]
+hello-world-env/
+.venv/
+venv/
+*.egg-info/
+ENV/
+
+# Source control
+.git
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+
+# Secrets
+.env
+.env.*
+
+# Node modules and other heavy folders
+node_modules/
+
+# Docker ignore itself
+.dockerignore

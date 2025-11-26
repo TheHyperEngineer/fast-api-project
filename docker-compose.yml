@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "8005:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB=test
+      - MONGO_COLLECTION=medical
+      - API_KEY=test-api-key
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health'); sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mongodata:
+
+networks:
+  appnet:
