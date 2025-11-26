@@ -1,0 +1,85 @@
+# Python common
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+hello-world-env/
+env/
+venv/
+ENV/
+env.bak/
+.venv/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-wheel-metadata/
+
+# Test / Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Editor / OS
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Logs, DB, backups, runtime
+*.log
+*.sqlite3
+*.db
+*.bak
+*~
+
+# Environment
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints
+
+# Optional: ignore built static output if you build a frontend (uncomment if needed)
+# /static/build/
+# /dist/
+# /build/
+
+# Misc
+.Python
+
+# Optional: ignore pip cache folder
+pip-wheel-metadata/
+
+# Local test credentials / secrets
+*.pem
+*.key
+
+# Keep git from tracking secrets or heavy files
+*.sqlite
+*.tgz
+
+# Node modules (if you ever add a node front-end)
+node_modules/
+
+# OS swap
+*.swp
+*.swo
+*.~*
