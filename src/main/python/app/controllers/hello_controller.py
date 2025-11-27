@@ -1,47 +1,48 @@
-from fastapi import APIRouter
-from fastapi.responses import FileResponse, RedirectResponse
+from pathlib import Path
 from typing import Dict
 
-router = APIRouter(prefix="", tags=["Hello"])
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse, RedirectResponse
 
-
-@router.get(
-    "/",
-    summary="Redirect to hello",
-    description="Redirects the root path to `/hello`. This mirrors a Spring Boot `@GetMapping('/')` in controllers that route to a landing endpoint.",
-)
-async def root_redirect():
-    """Redirect to `/hello`.
-
-    Notes for a Spring developer: this is similar to a controller returning a `RedirectView` to route a base path.
+class HelloController:
     """
-    return RedirectResponse(url="/hello")
-
-
-@router.get(
-    "/hello",
-    summary="Hello endpoint",
-    description="A basic 'Hello, World!' endpoint used for smoke tests and to confirm the application is responding.",
-    response_model=Dict[str, str],
-)
-async def hello():
-    """Return a simple JSON message for `/hello`.
-
-    For a Spring user: this is the simplest controller method returning a response body. It uses FastAPI's
-    native JSON encoding to create a response of the shape `{"message": "Hello, World!"}`.
+    Class-based controller for hello endpoints.
+    Exposes an APIRouter via the `router` property.
     """
-    return {"message": "Hello, World!"}
 
+    def __init__(self):
+        self.router = APIRouter(prefix="", tags=["Hello"])
+        self._register_routes()
 
-@router.get(
-    "/favicon.ico",
-    summary="Favicon",
-    description="Returns the favicon used by the site (if present).",
-    response_description="Binary favicon content",
-)
-async def favicon():
-    """Return the static `favicon.ico` from resources.
+    def _static_favicon_path(self) -> Path:
+        # src/main/python -> parents[3] to reach src/main
+        return Path(__file__).resolve().parents[3] / "resources" / "static" / "favicon.ico"
 
-    In Spring Boot you'd place static files under `src/main/resources/static`; we're doing the same here and mounting the folder in docs.
-    """
-    return FileResponse("src/main/resources/static/favicon.ico")
+    def _register_routes(self):
+        @self.router.get(
+            "/",
+            summary="Redirect to hello",
+            description="Redirects the root path to `/hello`.",
+        )
+        async def root_redirect():
+            return RedirectResponse(url="/hello")
+
+        @self.router.get(
+            "/hello",
+            summary="Hello endpoint",
+            description="A basic 'Hello, World!' endpoint used for smoke tests.",
+            response_model=Dict[str, str],
+        )
+        async def hello():
+            return {"message": "Hello, World!"}
+
+        @self.router.get(
+            "/favicon.ico",
+            summary="Favicon",
+            description="Returns the favicon used by the site (if present).",
+        )
+        async def favicon():
+            p = self._static_favicon_path()
+            if p.exists():
+                return FileResponse(str(p))
+            raise HTTPException(status_code=404, detail="favicon not found")

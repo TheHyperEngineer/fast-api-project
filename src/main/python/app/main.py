@@ -1,33 +1,15 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+"""
+Bootstrap module. This file provides a minimal script-style entrypoint that
+instantiates the Application class and runs it. This is the clear entry point
+for the application (analogous to Spring Boot's main class).
+"""
 
-from app.controllers import get_routers
+from app.application import Application
 
-app = FastAPI(
-    title="fast-api-project (Spring-style layout)",
-    description="A FastAPI project organized like a Spring Boot app with controllers, services, repositories, and models",
-    version="0.1.0",
-)
-app.mount(
-    "/static", StaticFiles(directory="src/main/resources/static"), name="static")
+_application = Application()
+app = _application.get_app()
 
-# Include routers from controllers package
-for r in get_routers():
-    # Include routers so OpenAPI picks up path descriptions and models
-    app.include_router(r)
-
-
-# Root and static endpoints are defined in controllers/hello_controller.py
-
-
-@app.middleware("http")
-async def log_path(request, call_next):
-    print("REQUEST LOG:", request.method, request.url.path)
-    return await call_next(request)
-
-
-# DB endpoints are defined in controllers/db_controller.py
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    # When run directly, start the uvicorn server (keeps same behavior as before)
+    _application.run(host="0.0.0.0", port=8000, reload=True)

@@ -1,5 +1,3 @@
-"""app.repositories package"""
+from .db import init_db, close_db, get_client, get_database, get_collection, find_items
 
-from .db import client, database, collection
-
-__all__ = ["client", "database", "collection"]
+__all__ = ["init_db", "close_db", "get_client", "get_database", "get_collection", "find_items"]

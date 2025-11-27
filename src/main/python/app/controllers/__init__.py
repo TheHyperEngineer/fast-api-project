@@ -1,19 +1,22 @@
-"""app.controllers package
+"""
+Controller package initializer.
 
-This package exposes routers for the API which are included from `app.main`.
+This module instantiates controller classes and returns their routers via get_routers().
 """
 
-from .hello_controller import router as hello_router
-from .db_controller import router as db_router
+from .hello_controller import HelloController
+from .db_controller import DBController
 
-__all__ = ["hello_router", "db_router"]
+__all__ = ["get_routers"]
 
 
 def get_routers():
-    """Return a list of routers to include in the FastAPI app.
-
-    This helps centralize controller registration; in a Spring Boot app, controllers are
-    discovered and wired into the application context. Here, this function is the equivalent
-    of collecting controller beans at startup and registering them on the router.
     """
-    return [hello_router, db_router]
+    Instantiate controllers and return a list of APIRouter instances to be included
+    in the FastAPI app.
+    """
+    controllers = [
+        HelloController(),
+        DBController(),
+    ]
+    return [c.router for c in controllers]

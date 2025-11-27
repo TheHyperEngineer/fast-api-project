@@ -1,9 +1,6 @@
-"""app.services package
+from .item_service import ItemService
 
-This package contains business logic (services) similar to `@Service` classes in a Spring Boot project.
-Controllers should delegate application logic to services and keep their responsibilities small (HTTP concerns only).
-"""
+__all__ = ["ItemService", "item_service"]
 
-from .item_service import get_items
-
-__all__ = ["get_items"]
+# default instance for quick use in controllers
+item_service = ItemService()
