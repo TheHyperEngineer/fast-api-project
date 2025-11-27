@@ -3,12 +3,17 @@ from fastapi.staticfiles import StaticFiles
 
 from app.controllers import get_routers
 
-app = FastAPI()
+app = FastAPI(
+    title="fast-api-project (Spring-style layout)",
+    description="A FastAPI project organized like a Spring Boot app with controllers, services, repositories, and models",
+    version="0.1.0",
+)
 app.mount(
     "/static", StaticFiles(directory="src/main/resources/static"), name="static")
 
 # Include routers from controllers package
 for r in get_routers():
+    # Include routers so OpenAPI picks up path descriptions and models
     app.include_router(r)
 
 
