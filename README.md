@@ -26,6 +26,8 @@ python -m venv .venv
 ```powershell
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+# Optional: install package as editable so `app` becomes importable without PYTHONPATH:
+python -m pip install -e .
 ```
 
 3. Ensure MongoDB is running and accessible. If you run MongoDB in Docker (example):
@@ -38,16 +40,16 @@ docker run -d -p 27017:27017 --name mongodb mongodb/mongodb-community-server
 
 ```powershell
 # Recommended: start uvicorn with module style so relative imports work as expected
-python -m uvicorn main:app --host 127.0.0.1 --port 8005 --reload --log-level debug
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8005 --reload --log-level debug
 ```
 
-> Important: Start `uvicorn` from the directory that contains `main.py`. Don’t run `python main.py` directly — using `-m uvicorn` loads the module correctly and enables reloader behavior.
+> Important: Start `uvicorn` from the project root with the module `app.main` (example: `python -m uvicorn app.main:app`) rather than `python main.py`. Using `-m uvicorn` loads the module correctly and enables reloader behavior.
 
 ---
 
 ## Environment variables
 
-The project supports these env variables for Mongo configuration (defaults are set in `db.py`):
+The project supports these env variables for Mongo configuration (defaults are set in `app/repositories/db.py`):
 
 - `MONGO_URI` — MongoDB connection URI (default: `mongodb://localhost:27017`)
 - `MONGO_DB` — MongoDB database name (default: `test`)
@@ -59,7 +61,7 @@ Example (PowerShell):
 $env:MONGO_URI = "mongodb://localhost:27017"
 $env:MONGO_DB = "test"
 $env:MONGO_COLLECTION = "your_collection"
-python -m uvicorn main:app --reload --port 8005
+python -m uvicorn app.main:app --reload --port 8005
 ```
 
 ---
@@ -84,11 +86,11 @@ curl -H "accept: application/json" http://127.0.0.1:8005/items
 
 ## Static files
 
-- Static assets are served from `/static` via `app.mount('/static', StaticFiles(directory='static'))` in `main.py`.
-- Create a `static` directory and add `favicon.ico` or `index.html` to avoid mount errors on startup:
+- Static assets are served from `/static` via `app.mount('/static', StaticFiles(directory='src/main/resources/static'))` in `app/main.py`.
+- Create the `src/main/resources/static` directory and add `favicon.ico` or `index.html` to avoid mount errors on startup:
 
 ```powershell
-New-Item -ItemType Directory -Path .\static
+New-Item -ItemType Directory -Path src\main\resources\static
 # Add a favicon if you want
 Invoke-WebRequest -Uri "https://www.google.com/favicon.ico" -OutFile .\static\favicon.ico
 ```
@@ -109,7 +111,7 @@ Alternatively, seed with Python (`seed_db.py` sample)
 ```python
 # seed_db.py
 import asyncio
-from db import collection
+from app.repositories.db import collection
 
 async def main():
     await collection.insert_one({"name": "test-item", "value": 123})
@@ -129,12 +131,12 @@ python seed_db.py
 
 - `RuntimeError: Directory 'static' does not exist`
 
-  - Create the `static` folder or conditionally mount it (`if os.path.isdir('static'):`) to avoid the startup failure.
+  - Create the `src/main/resources/static` folder or conditionally mount it (`if os.path.isdir('src/main/resources/static'):`) to avoid the startup failure.
 
 - `ModuleNotFoundError: No module named 'db'` or `ImportError: attempted relative import with no known parent package`
 
-  - Run uvicorn from the project root and use `python -m uvicorn main:app`, not `python main.py`.
-  - Ensure `db.py` is in the project root and not in the `static` folder.
+  - Run uvicorn from the project root and use `python -m uvicorn app.main:app`, not `python main.py`.
+  - Ensure `app/repositories/db.py` is in the package and not in the `static` folder.
 
 - `ObjectId is not JSON serializable`
 
@@ -169,3 +171,22 @@ If you want, I can:
 - Add a `Makefile` (or PowerShell script) to start the server, seed data, and run tests.
 
 Tell me which action you’d like me to take next.
+
+---
+
+## Project layout (Spring Boot -> Python/ FastAPI mapping)
+
+If you're coming from a Spring Boot (Maven) layout, here's a mapping so the structure will feel familiar:
+
+| Spring Boot (Maven)          | Python FastAPI (this project)                         |
+| ---------------------------- | ----------------------------------------------------- |
+| src/main/java                | src/main/python (your app package: `app`)             |
+| src/main/resources           | src/main/resources (static assets, templates, config) |
+| src/test/java                | src/test/python (tests use pytest)                    |
+| application.yml / properties | `app/config/` (module for app config)                 |
+| controllers / rest           | `app/controllers/` (API route modules)                |
+| services                     | `app/services/` (business logic)                      |
+| repositories / dao           | `app/repositories/` (DB clients and data access)      |
+| model / entity               | `app/models/` (Pydantic models and DTOs)              |
+
+This layout uses a `src/` layout with the package root set to `src/main/python` so `python -m uvicorn app.main:app` will work from your project root.

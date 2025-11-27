@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fast-api-project"
+version = "0.1.0"
+description = "FastAPI project reorganized with a Spring Boot-style layout"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "motor"
+]
+
+[tool.setuptools.packages.find]
+where = ["src/main/python"]
